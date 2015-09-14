@@ -77,6 +77,8 @@ public class ResistorCameraView extends JavaCameraView {
 
         Camera.Parameters params = mCamera.getParameters();
 
+        mCamera.setDisplayOrientation(180);
+
         List<String> FocusModes = params.getSupportedFocusModes();
         if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
         {
@@ -87,8 +89,9 @@ public class ResistorCameraView extends JavaCameraView {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
 
-        if(params.isZoomSupported())
+        if(params.isZoomSupported()) {
             enableZoomControls(params);
+        }
 
         mCamera.setParameters(params);
 

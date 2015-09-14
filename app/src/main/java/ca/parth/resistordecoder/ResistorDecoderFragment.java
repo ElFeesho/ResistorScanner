@@ -18,23 +18,23 @@ import org.opencv.core.Mat;
 
 public class ResistorDecoderFragment extends Fragment implements CameraBridgeViewBase.CvCameraViewListener2, ResistorImageProcessor.ResistanceCalculatedCallback {
 
-    private BaseLoaderCallback _loaderCallback;
+    private BaseLoaderCallback loaderCallback;
 
     private ResistorView resistorView;
     private TextView currentResistance;
     private CheckBox enableFlash;
-    private ResistorCameraView _resistorCameraView;
-    private ResistorImageProcessor _resistorProcessor;
+    private ResistorCameraView resistorCameraView;
+    private ResistorImageProcessor resistorProcessor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        _loaderCallback = new BaseLoaderCallback(getActivity()) {
+        loaderCallback = new BaseLoaderCallback(getActivity()) {
             @Override
             public void onManagerConnected(int status) {
                 switch (status) {
                     case LoaderCallbackInterface.SUCCESS:
-                        _resistorCameraView.enableView();
+                        resistorCameraView.enableView();
                         break;
                     default:
                         super.onManagerConnected(status);
@@ -56,20 +56,20 @@ public class ResistorDecoderFragment extends Fragment implements CameraBridgeVie
         resistorView = (ResistorView) view.findViewById(R.id.resistorView);
         currentResistance = (TextView) view.findViewById(R.id.currentResistance);
         enableFlash = (CheckBox) view.findViewById(R.id.flash);
-        _resistorCameraView = (ResistorCameraView) view.findViewById(R.id.ResistorCameraView);
-        _resistorCameraView.setVisibility(SurfaceView.VISIBLE);
-        _resistorCameraView.setZoomControl((SeekBar) view.findViewById(R.id.CameraZoomControls));
-        _resistorCameraView.setCvCameraViewListener(this);
+        resistorCameraView = (ResistorCameraView) view.findViewById(R.id.ResistorCameraView);
+        resistorCameraView.setVisibility(SurfaceView.VISIBLE);
+        resistorCameraView.setZoomControl((SeekBar) view.findViewById(R.id.CameraZoomControls));
+        resistorCameraView.setCvCameraViewListener(this);
 
-        _resistorProcessor = new ResistorImageProcessor();
+        resistorProcessor = new ResistorImageProcessor();
 
         enableFlash.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    _resistorCameraView.enableFlash();
+                    resistorCameraView.enableFlash();
                 } else {
-                    _resistorCameraView.disableFlash();
+                    resistorCameraView.disableFlash();
                 }
             }
         });
@@ -81,14 +81,14 @@ public class ResistorDecoderFragment extends Fragment implements CameraBridgeVie
     public void onPause()
     {
         super.onPause();
-        if (_resistorCameraView != null)
-            _resistorCameraView.disableView();
+        if (resistorCameraView != null)
+            resistorCameraView.disableView();
     }
 
     public void onDestroy() {
         super.onDestroy();
-        if (_resistorCameraView != null)
-            _resistorCameraView.disableView();
+        if (resistorCameraView != null)
+            resistorCameraView.disableView();
     }
 
     public void onCameraViewStarted(int width, int height) {
@@ -98,14 +98,14 @@ public class ResistorDecoderFragment extends Fragment implements CameraBridgeVie
     }
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        return _resistorProcessor.processFrame(inputFrame, this);
+        return resistorProcessor.processFrame(inputFrame, this);
     }
 
     @Override
     public void onResume()
     {
         super.onResume();
-        _loaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        loaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
     }
 
     @Override

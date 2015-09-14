@@ -12,6 +12,9 @@ import android.util.Log;
  */
 public abstract class BaseLoaderCallback implements LoaderCallbackInterface {
 
+    protected Context mAppContext;
+    private final static String TAG = "BaseLoaderCallback";
+
     public BaseLoaderCallback(Context AppContext) {
         mAppContext = AppContext;
     }
@@ -135,7 +138,4 @@ public abstract class BaseLoaderCallback implements LoaderCallbackInterface {
     {
         ((Activity) mAppContext).finish();
     }
-
-    protected Context mAppContext;
-    private final static String TAG = "OpenCVLoader/BaseLoaderCallback";
 }
