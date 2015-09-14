@@ -87,8 +87,6 @@ public class ResistorCameraView extends JavaCameraView {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
 
-        enableFlash(params);
-
         if(params.isZoomSupported())
             enableZoomControls(params);
 
