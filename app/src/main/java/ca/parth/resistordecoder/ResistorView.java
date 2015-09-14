@@ -11,6 +11,8 @@ import android.view.View;
 public class ResistorView extends View {
 
     public static final int TOLERANCE_GOLD = 0xffcb9931;
+    public static final int RESISTANCE_BLACK = 0xff000000;
+    public static final int RESISTANCE_RED = 0xffff0000;
     public static final int RESISTANCE_BROWN = 0xff663236;
     public static final int RESISTANCE_ORANGE = 0xffff6500;
     public static final int RESISTANCE_YELLOW = 0xfffdfe02;
@@ -19,6 +21,8 @@ public class ResistorView extends View {
     public static final int RESISTANCE_VIOLET = 0xffcc65fe;
     public static final int RESISTANCE_GREY = 0xff979191;
     public static final int RESISTANCE_WHITE = 0xffefefef;
+
+    public static int[] COLOUR_TABLE = { RESISTANCE_BLACK, RESISTANCE_BROWN, RESISTANCE_RED, RESISTANCE_ORANGE, RESISTANCE_YELLOW, RESISTANCE_GREEN, RESISTANCE_BLUE, RESISTANCE_VIOLET, RESISTANCE_GREY, RESISTANCE_WHITE };
 
     private Path resistorBody = new Path();
     private Paint bodyPaint = new Paint();
@@ -29,6 +33,7 @@ public class ResistorView extends View {
     private int toleranceOffset;
 
     private int[] bandOffsets = new int[3];
+    private int[] bandColours = new int[3];
 
     public ResistorView(Context context) {
         this(context, null, 0);
@@ -47,6 +52,8 @@ public class ResistorView extends View {
         strokePaint.setColor(0xff000000);
         strokePaint.setStyle(Paint.Style.STROKE);
         bandPaint.setStyle(Paint.Style.FILL);
+
+        setResistance(resistance);
     }
 
     @Override
@@ -92,6 +99,14 @@ public class ResistorView extends View {
     {
         this.resistance = resistance;
 
+        int powersOfTen = (int) Math.floor(Math.log10(resistance))-1;
+        int divisor = powersOfTen * 10;
+        int dividedResistance = resistance / divisor;
+
+        bandColours[0] = COLOUR_TABLE[(dividedResistance/10) % 10];
+        bandColours[1] = COLOUR_TABLE[dividedResistance % 10];
+        bandColours[2] = COLOUR_TABLE[powersOfTen];
+
         invalidate();
     }
 
@@ -104,8 +119,8 @@ public class ResistorView extends View {
 
         canvas.clipPath(resistorBody);
 
-        for (int bandOffset : bandOffsets) {
-            drawBand(canvas, bandOffset, RESISTANCE_BLUE);
+        for (int i = 0; i < bandOffsets.length; i++) {
+            drawBand(canvas, bandOffsets[i], bandColours[i]);
         }
         drawBand(canvas, toleranceOffset, TOLERANCE_GOLD);
     }
