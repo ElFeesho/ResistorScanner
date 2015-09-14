@@ -33,4 +33,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <ca.parth.resistordecoder.ResistorView
+        android:id="@+id/resistorView"
+        android:layout_below="@id/currentResistance"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"/>
+
 </RelativeLayout>
