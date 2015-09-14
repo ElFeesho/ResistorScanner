@@ -100,4 +100,10 @@ public class ResistorCameraView extends JavaCameraView {
 
         return ret;
     }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int height = (int) ((MeasureSpec.getSize(widthMeasureSpec)/16.0f)*9);
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), height);
+    }
 }

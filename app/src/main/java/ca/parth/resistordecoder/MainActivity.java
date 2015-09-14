@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.SurfaceView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -16,12 +17,13 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 
 
-public class MainActivity extends Activity implements CvCameraViewListener2 {
+public class MainActivity extends Activity implements CvCameraViewListener2, ResistorImageProcessor.ResistanceCalculatedCallback {
 
     static {
         OpenCVLoader.initDebug();
     }
 
+    private TextView currentResistance;
     private ResistorCameraView _resistorCameraView;
     private ResistorImageProcessor _resistorProcessor;
 
@@ -43,6 +45,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        currentResistance = (TextView) findViewById(R.id.currentResistance);
         _resistorCameraView = (ResistorCameraView) findViewById(R.id.ResistorCameraView);
         _resistorCameraView.setVisibility(SurfaceView.VISIBLE);
         _resistorCameraView.setZoomControl((SeekBar) findViewById(R.id.CameraZoomControls));
@@ -90,7 +93,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        return _resistorProcessor.processFrame(inputFrame);
+        return _resistorProcessor.processFrame(inputFrame, this);
     }
 
     @Override
@@ -98,5 +101,23 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     {
         super.onResume();
         _loaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+    }
+
+    @Override
+    public void resistanceCalculated(int resistance) {
+        final String valueStr;
+        if (resistance >= 1e3 && resistance < 1e6) {
+            valueStr = String.valueOf(resistance / 1e3) + " kΩ";
+        } else if (resistance >= 1e6) {
+            valueStr = String.valueOf(resistance / 1e6) + "MΩ";
+        } else {
+            valueStr = String.valueOf(resistance) + " Ω";
+        }
+
+        currentResistance.post(new Runnable() {
+            public void run() {
+                currentResistance.setText(valueStr);
+            }
+        });
     }
 }
