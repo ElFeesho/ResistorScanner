@@ -87,11 +87,7 @@ public class ResistorCameraView extends JavaCameraView {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
 
-        List<String> FlashModes = params.getSupportedFlashModes();
-        if(FlashModes != null && FlashModes.contains(Camera.Parameters.FLASH_MODE_TORCH))
-        {
-            params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-        }
+        enableFlash(params);
 
         if(params.isZoomSupported())
             enableZoomControls(params);
@@ -99,6 +95,33 @@ public class ResistorCameraView extends JavaCameraView {
         mCamera.setParameters(params);
 
         return ret;
+    }
+
+    public void enableFlash()
+    {
+        Camera.Parameters parameters = mCamera.getParameters();
+        enableFlash(parameters);
+        mCamera.setParameters(parameters);
+    }
+
+    public void disableFlash()
+    {
+        Camera.Parameters parameters = mCamera.getParameters();
+        disableFlash(parameters);
+        mCamera.setParameters(parameters);
+    }
+
+
+
+    private void enableFlash(Camera.Parameters params) {
+        List<String> FlashModes = params.getSupportedFlashModes();
+        if(FlashModes != null && FlashModes.contains(Camera.Parameters.FLASH_MODE_TORCH))
+        {
+            params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        }
+    }
+    private void disableFlash(Camera.Parameters params) {
+        params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
     }
 
     @Override
