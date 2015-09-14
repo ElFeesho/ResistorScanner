@@ -23,6 +23,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Res
         OpenCVLoader.initDebug();
     }
 
+    private ResistorView resistorView;
     private TextView currentResistance;
     private ResistorCameraView _resistorCameraView;
     private ResistorImageProcessor _resistorProcessor;
@@ -45,6 +46,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Res
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        resistorView = (ResistorView) findViewById(R.id.resistorView);
         currentResistance = (TextView) findViewById(R.id.currentResistance);
         _resistorCameraView = (ResistorCameraView) findViewById(R.id.ResistorCameraView);
         _resistorCameraView.setVisibility(SurfaceView.VISIBLE);
@@ -104,7 +106,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Res
     }
 
     @Override
-    public void resistanceCalculated(int resistance) {
+    public void resistanceCalculated(final int resistance) {
         final String valueStr;
         if (resistance >= 1e3 && resistance < 1e6) {
             valueStr = String.valueOf(resistance / 1e3) + " kΩ";
@@ -117,6 +119,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Res
         currentResistance.post(new Runnable() {
             public void run() {
                 currentResistance.setText(valueStr);
+                resistorView.setResistance(resistance);
             }
         });
     }
