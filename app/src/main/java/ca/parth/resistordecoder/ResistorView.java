@@ -28,7 +28,7 @@ public class ResistorView extends View {
     private Paint bodyPaint = new Paint();
     private Paint strokePaint = new Paint();
     private Paint bandPaint = new Paint();
-    private int resistance = 440;
+    private int resistance = 1;
     private int bandWidth;
     private int toleranceOffset;
 
@@ -100,11 +100,21 @@ public class ResistorView extends View {
         this.resistance = resistance;
 
         int powersOfTen = (int) Math.floor(Math.log10(resistance))-1;
-        int divisor = powersOfTen * 10;
-        int dividedResistance = resistance / divisor;
 
-        bandColours[0] = COLOUR_TABLE[(dividedResistance/10) % 10];
-        bandColours[1] = COLOUR_TABLE[dividedResistance % 10];
+        if (powersOfTen > 0) {
+
+            int divisor = powersOfTen * 10;
+            int dividedResistance = resistance / divisor;
+
+            bandColours[0] = COLOUR_TABLE[(dividedResistance / 10) % 10];
+            bandColours[1] = COLOUR_TABLE[dividedResistance % 10];
+        }
+        else
+        {
+            powersOfTen = 0;
+            bandColours[0] = COLOUR_TABLE[(resistance / 10) % 10];
+            bandColours[1] = COLOUR_TABLE[resistance % 10];
+        }
         bandColours[2] = COLOUR_TABLE[powersOfTen];
 
         invalidate();
