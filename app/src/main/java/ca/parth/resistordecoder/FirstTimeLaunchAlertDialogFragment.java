@@ -17,7 +17,7 @@ public class FirstTimeLaunchAlertDialogFragment extends DialogFragment
                 .setNeutralButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+                        dismiss();
                     }
                 })
                 .create();
