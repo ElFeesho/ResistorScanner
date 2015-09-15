@@ -10,28 +10,36 @@ import org.opencv.android.JavaCameraView;
 
 import java.util.List;
 
-/**
- * Created by parth on 05/05/15.
- */
 public class ResistorCameraView extends JavaCameraView {
 
-    public ResistorCameraView(Context context, int cameraId) {
-        super(context, cameraId);
-    }
+    private SeekBar _zoomControl;
 
     public ResistorCameraView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    protected SeekBar _zoomControl;
-
-    public void setZoomControl(SeekBar zoomControl)
-    {
+    public void setZoomControl(SeekBar zoomControl) {
         _zoomControl = zoomControl;
     }
 
-    protected void enableZoomControls(Camera.Parameters params)
-    {
+    @Override
+    protected boolean initializeCamera(int width, int height) {
+        boolean ret = super.initializeCamera(width, height);
+
+        Camera.Parameters params = mCamera.getParameters();
+
+        enableFocus(params);
+
+        if (params.isZoomSupported()) {
+            enableZoomControls(params);
+        }
+
+        mCamera.setParameters(params);
+
+        return ret;
+    }
+
+    private void enableZoomControls(Camera.Parameters params) {
         final SharedPreferences settings = getContext().getSharedPreferences("ZoomCtl", 0);
 
         // set zoom level to previously set level if available, otherwise maxZoom
@@ -39,7 +47,7 @@ public class ResistorCameraView extends JavaCameraView {
         int currentZoom = settings.getInt("ZoomLvl", maxZoom);
         params.setZoom(currentZoom);
 
-        if(_zoomControl == null) return;
+        if (_zoomControl == null) return;
 
         _zoomControl.setMax(maxZoom);
         _zoomControl.setProgress(currentZoom);
@@ -50,8 +58,7 @@ public class ResistorCameraView extends JavaCameraView {
                 params.setZoom(progress);
                 mCamera.setParameters(params);
 
-                if (settings != null)
-                {
+                if (settings != null) {
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putInt("ZoomLvl", progress);
                     editor.apply();
@@ -70,64 +77,42 @@ public class ResistorCameraView extends JavaCameraView {
         });
     }
 
-    // zoom in and enable flash
-    protected boolean initializeCamera(int width, int height)
-    {
-        boolean ret = super.initializeCamera(width, height);
-
-        Camera.Parameters params = mCamera.getParameters();
-
-        mCamera.setDisplayOrientation(180);
-
+    private void enableFocus(Camera.Parameters params) {
         List<String> FocusModes = params.getSupportedFocusModes();
-        if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
-        {
+        if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-        }
-        else if(FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
-        {
+        } else if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
-
-        if(params.isZoomSupported()) {
-            enableZoomControls(params);
-        }
-
-        mCamera.setParameters(params);
-
-        return ret;
     }
 
-    public void enableFlash()
-    {
+    public void enableFlash() {
         Camera.Parameters parameters = mCamera.getParameters();
         enableFlash(parameters);
         mCamera.setParameters(parameters);
     }
 
-    public void disableFlash()
-    {
+    public void disableFlash() {
         Camera.Parameters parameters = mCamera.getParameters();
         disableFlash(parameters);
         mCamera.setParameters(parameters);
     }
 
 
-
     private void enableFlash(Camera.Parameters params) {
         List<String> FlashModes = params.getSupportedFlashModes();
-        if(FlashModes != null && FlashModes.contains(Camera.Parameters.FLASH_MODE_TORCH))
-        {
+        if (FlashModes != null && FlashModes.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
             params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
         }
     }
+
     private void disableFlash(Camera.Parameters params) {
         params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = (int) ((MeasureSpec.getSize(widthMeasureSpec)/16.0f)*9);
+        int height = (int) ((MeasureSpec.getSize(widthMeasureSpec) / 16.0f) * 9);
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), height);
     }
 }
