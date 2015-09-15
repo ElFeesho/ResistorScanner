@@ -12,11 +12,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.core.Mat;
 
-public class ResistorDecoderFragment extends Fragment implements CameraBridgeViewBase.CvCameraViewListener2, ResistorImageProcessor.ResistanceCalculatedCallback {
+public class ResistorDecoderFragment extends Fragment implements ResistorCameraView.CvCameraViewListener2, ResistorImageProcessor.ResistanceCalculatedCallback {
 
     private BaseLoaderCallback loaderCallback;
 
@@ -97,7 +96,7 @@ public class ResistorDecoderFragment extends Fragment implements CameraBridgeVie
     public void onCameraViewStopped() {
     }
 
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+    public Mat onCameraFrame(ResistorCameraView.CvCameraViewFrame inputFrame) {
         return resistorProcessor.processFrame(inputFrame, this);
     }
 

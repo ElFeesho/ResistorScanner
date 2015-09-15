@@ -2,7 +2,6 @@ package ca.parth.resistordecoder;
 
 import android.util.SparseIntArray;
 
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -13,10 +12,6 @@ import org.opencv.imgproc.Moments;
 
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by parth on 05/05/15.
- */
 
 public class ResistorImageProcessor {
 
@@ -48,7 +43,7 @@ public class ResistorImageProcessor {
 
     private SparseIntArray _locationValues = new SparseIntArray(4);
 
-    public Mat processFrame(CvCameraViewFrame frame, ResistanceCalculatedCallback callback) {
+    public Mat processFrame(ResistorCameraView.CvCameraViewFrame frame, ResistanceCalculatedCallback callback) {
         Mat imageMat = frame.rgba();
         int cols = imageMat.cols();
         int rows = imageMat.rows();
@@ -88,7 +83,7 @@ public class ResistorImageProcessor {
 
         for (int i = 0; i < NUM_CODES; i++) {
             Mat mask = new Mat();
-            List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+            List<MatOfPoint> contours = new ArrayList<>();
             Mat hierarchy = new Mat();
 
             if (i == 2) {
