@@ -48,7 +48,8 @@ public class ResistorView extends View {
 
         bodyPaint.setColor(0xffffcc66);
         bodyPaint.setStyle(Paint.Style.FILL);
-        strokePaint.setStrokeWidth(3);
+        strokePaint.setStrokeWidth(16);
+        strokePaint.setAntiAlias(true);
         strokePaint.setColor(0xff000000);
         strokePaint.setStyle(Paint.Style.STROKE);
         bandPaint.setStyle(Paint.Style.FILL);
