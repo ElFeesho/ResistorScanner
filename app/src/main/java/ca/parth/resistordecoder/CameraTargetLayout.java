@@ -26,7 +26,7 @@ public class CameraTargetLayout extends FrameLayout {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        canvas.drawRect(getMeasuredWidth() / 2 - 50, getMeasuredHeight() / 2 - 2, getMeasuredWidth() / 2 + 50, getMeasuredHeight() / 2 + 2, paint);
+        canvas.drawRect(getMeasuredWidth() / 2 - 50, getMeasuredHeight() / 2, getMeasuredWidth() / 2 + 50, getMeasuredHeight() / 2 + 30, paint);
     }
 
 }

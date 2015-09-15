@@ -2,7 +2,6 @@ package ca.parth.resistordecoder;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.util.AttributeSet;
@@ -68,9 +67,9 @@ public class CameraView extends TextureView implements Camera.PreviewCallback {
                 camera.setParameters(parameters);
                 camera.startPreview();
 
-                Matrix transformation = new Matrix();
-                transformation.setScale(1, (float) 2.5);
-                setTransform(transformation);
+//                Matrix transformation = new Matrix();
+//                transformation.setScale(1, (float) 2.5);
+//                setTransform(transformation);
 
             }
 

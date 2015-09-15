@@ -42,7 +42,7 @@ public class ResistorImageProcessor {
     private static Scalar LOWER_RED2 = new Scalar(171, 65, 50);
     private static Scalar UPPER_RED2 = new Scalar(180, 250, 150);
 
-    private SparseIntArray _locationValues = new SparseIntArray(4);
+    private SparseIntArray locationValues = new SparseIntArray(4);
 
     public Mat processFrame(CameraFrame frame, ResistanceCalculatedCallback callback) {
         Mat imageMat = frame.rgba();
@@ -57,28 +57,25 @@ public class ResistorImageProcessor {
 
         findLocations(filteredMat);
 
-        if (_locationValues.size() >= 3) {
-            // recover the resistor value by iterating through the centroid locations
-            // in an ascending manner and using their associated colour values
-            int k_tens = _locationValues.keyAt(0);
-            int k_units = _locationValues.keyAt(1);
-            int k_power = _locationValues.keyAt(2);
+        if (locationValues.size() >= 3) {
+            int k_tens = locationValues.keyAt(0);
+            int k_units = locationValues.keyAt(1);
+            int k_power = locationValues.keyAt(2);
 
-            int value = 10 * _locationValues.get(k_tens) + _locationValues.get(k_units);
-            value *= Math.pow(10, _locationValues.get(k_power));
+            int value = 10 * locationValues.get(k_tens) + locationValues.get(k_units);
+            value *= Math.pow(10, locationValues.get(k_power));
 
             if (value <= 1e9) {
                 callback.resistanceCalculated(value);
             }
         }
 
-        //Core.line(imageMat, new Point(cols / 2 - 50, rows / 2), new Point(cols / 2 + 50, rows / 2), color, 2);
         return imageMat;
     }
 
     // find contours of colour bands and the x-coords of their centroids
     private void findLocations(Mat searchMat) {
-        _locationValues.clear();
+        locationValues.clear();
         SparseIntArray areas = new SparseIntArray(4);
 
         for (int i = 0; i < NUM_CODES; i++) {
@@ -106,21 +103,21 @@ public class ResistorImageProcessor {
                     // if a colour band is split into multiple contours
                     // we take the largest and consider only its centroid
                     boolean shouldStoreLocation = true;
-                    for (int locIdx = 0; locIdx < _locationValues.size(); locIdx++) {
-                        if (Math.abs(_locationValues.keyAt(locIdx) - cx) < 10) {
-                            if (areas.get(_locationValues.keyAt(locIdx)) > area) {
+                    for (int locIdx = 0; locIdx < locationValues.size(); locIdx++) {
+                        if (Math.abs(locationValues.keyAt(locIdx) - cx) < 10) {
+                            if (areas.get(locationValues.keyAt(locIdx)) > area) {
                                 shouldStoreLocation = false;
                                 break;
                             } else {
-                                _locationValues.delete(_locationValues.keyAt(locIdx));
-                                areas.delete(_locationValues.keyAt(locIdx));
+                                locationValues.delete(locationValues.keyAt(locIdx));
+                                areas.delete(locationValues.keyAt(locIdx));
                             }
                         }
                     }
 
                     if (shouldStoreLocation) {
                         areas.put(cx, area);
-                        _locationValues.put(cx, i);
+                        locationValues.put(cx, i);
                     }
                 }
             }
