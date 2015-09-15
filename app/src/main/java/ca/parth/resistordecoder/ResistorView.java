@@ -97,6 +97,7 @@ public class ResistorView extends View {
 
     public void setResistance(int resistance)
     {
+
         if (resistance <= 0 || resistance > 99_000_000)
         {
             this.resistance = 0;
@@ -105,26 +106,17 @@ public class ResistorView extends View {
             bandColours[2] = RESISTANCE_BLACK;
         }
         else {
-            this.resistance = resistance;
             int powersOfTen = (int) Math.floor(Math.log10(resistance))-1;
-
-            if (powersOfTen > 0) {
-
-                int divisor = powersOfTen * 10;
-                int dividedResistance = resistance / divisor;
-
-                bandColours[0] = COLOUR_TABLE[(dividedResistance / 10) % 10];
-                bandColours[1] = COLOUR_TABLE[dividedResistance % 10];
-            }
-            else
+            if (powersOfTen < 0)
             {
                 powersOfTen = 0;
-                bandColours[0] = COLOUR_TABLE[(resistance / 10) % 10];
-                bandColours[1] = COLOUR_TABLE[resistance % 10];
             }
+            this.resistance = resistance;
+            String resistanceValue = resistance + "";
+            bandColours[0] = COLOUR_TABLE[resistanceValue.charAt(0)-'0'];
+            bandColours[1] = COLOUR_TABLE[resistanceValue.charAt(0)-'0'];
             bandColours[2] = COLOUR_TABLE[powersOfTen];
         }
-
 
         invalidate();
     }

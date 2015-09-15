@@ -3,12 +3,12 @@ package ca.parth.resistordecoder;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import org.opencv.android.OpenCVLoader;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends AppCompatActivity {
 
     static {
         OpenCVLoader.initDebug();
