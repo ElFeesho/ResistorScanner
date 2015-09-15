@@ -18,12 +18,8 @@ import ca.parth.resistordecoder.camera.CameraFrame;
 
 public class CameraView extends TextureView implements Camera.PreviewCallback {
 
-    public interface CvCameraViewListener {
-        void onCameraFrame(CvCameraViewFrame inputFrame);
-    }
-
-    public interface CvCameraViewFrame {
-        Mat rgba();
+    public interface CameraFrameAvailableListener {
+        void onCameraFrame(CameraFrame inputFrame);
     }
 
     private Camera camera;
@@ -31,7 +27,7 @@ public class CameraView extends TextureView implements Camera.PreviewCallback {
     private byte[] mBuffer;
     private int chainIndex = 0;
     private Mat[] frameChain = new Mat[2];
-    private CvCameraViewListener cvCameraViewListener;
+    private CameraFrameAvailableListener cameraFrameAvailableListener;
 
     public CameraView(Context context) {
         this(context, null, 0);
@@ -134,8 +130,8 @@ public class CameraView extends TextureView implements Camera.PreviewCallback {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), height);
     }
 
-    public void setCvCameraViewListener(CvCameraViewListener cvCameraViewListener) {
-        this.cvCameraViewListener = cvCameraViewListener;
+    public void setCameraFrameAvailableListener(CameraFrameAvailableListener cameraFrameAvailableListener) {
+        this.cameraFrameAvailableListener = cameraFrameAvailableListener;
     }
 
     @Override
@@ -150,9 +146,9 @@ public class CameraView extends TextureView implements Camera.PreviewCallback {
         }
     }
 
-    protected void deliverFrame(CvCameraViewFrame frame) {
-        if (cvCameraViewListener != null) {
-            cvCameraViewListener.onCameraFrame(frame);
+    protected void deliverFrame(CameraFrame frame) {
+        if (cameraFrameAvailableListener != null) {
+            cameraFrameAvailableListener.onCameraFrame(frame);
         }
     }
 }

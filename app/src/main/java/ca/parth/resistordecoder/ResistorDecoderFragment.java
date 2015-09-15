@@ -13,7 +13,9 @@ import android.widget.TextView;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 
-public class ResistorDecoderFragment extends Fragment implements CameraView.CvCameraViewListener, ResistorImageProcessor.ResistanceCalculatedCallback {
+import ca.parth.resistordecoder.camera.CameraFrame;
+
+public class ResistorDecoderFragment extends Fragment implements CameraView.CameraFrameAvailableListener, ResistorImageProcessor.ResistanceCalculatedCallback {
 
     private BaseLoaderCallback loaderCallback;
 
@@ -56,7 +58,7 @@ public class ResistorDecoderFragment extends Fragment implements CameraView.CvCa
         resistorCameraView = (CameraView) view.findViewById(R.id.ResistorCameraView);
         resistorCameraView.setVisibility(SurfaceView.VISIBLE);
 //        resistorCameraView.setZoomControl((SeekBar) view.findViewById(R.id.CameraZoomControls));
-        resistorCameraView.setCvCameraViewListener(this);
+        resistorCameraView.setCameraFrameAvailableListener(this);
 
         resistorProcessor = new ResistorImageProcessor();
 
@@ -73,7 +75,7 @@ public class ResistorDecoderFragment extends Fragment implements CameraView.CvCa
 
     }
 
-    public void onCameraFrame(CameraView.CvCameraViewFrame inputFrame) {
+    public void onCameraFrame(CameraFrame inputFrame) {
         resistorProcessor.processFrame(inputFrame, this);
     }
 

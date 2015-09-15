@@ -12,6 +12,8 @@ import org.opencv.imgproc.Moments;
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.parth.resistordecoder.camera.CameraFrame;
+
 public class ResistorImageProcessor {
 
     public interface ResistanceCalculatedCallback {
@@ -42,7 +44,7 @@ public class ResistorImageProcessor {
 
     private SparseIntArray _locationValues = new SparseIntArray(4);
 
-    public Mat processFrame(CameraView.CvCameraViewFrame frame, ResistanceCalculatedCallback callback) {
+    public Mat processFrame(CameraFrame frame, ResistanceCalculatedCallback callback) {
         Mat imageMat = frame.rgba();
         int cols = imageMat.cols();
         int rows = imageMat.rows();

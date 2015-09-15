@@ -3,9 +3,7 @@ package ca.parth.resistordecoder.camera;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
-import ca.parth.resistordecoder.CameraView;
-
-public class CameraFrame implements CameraView.CvCameraViewFrame {
+public class CameraFrame {
     private Mat mYuvFrameData;
     private Mat mRgba;
 
