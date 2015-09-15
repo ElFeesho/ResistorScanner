@@ -8,21 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.core.Mat;
 
-public class ResistorDecoderFragment extends Fragment implements ResistorCameraView.CvCameraViewListener2, ResistorImageProcessor.ResistanceCalculatedCallback {
+public class ResistorDecoderFragment extends Fragment implements CameraView.CvCameraViewListener, ResistorImageProcessor.ResistanceCalculatedCallback {
 
     private BaseLoaderCallback loaderCallback;
 
     private ResistorView resistorView;
     private TextView currentResistance;
     private CheckBox enableFlash;
-    private ResistorCameraView resistorCameraView;
+    private CameraView resistorCameraView;
     private ResistorImageProcessor resistorProcessor;
 
     @Override
@@ -33,7 +31,7 @@ public class ResistorDecoderFragment extends Fragment implements ResistorCameraV
             public void onManagerConnected(int status) {
                 switch (status) {
                     case LoaderCallbackInterface.SUCCESS:
-                        resistorCameraView.enableView();
+                        //resistorCameraView.enableView();
                         break;
                     default:
                         super.onManagerConnected(status);
@@ -55,9 +53,9 @@ public class ResistorDecoderFragment extends Fragment implements ResistorCameraV
         resistorView = (ResistorView) view.findViewById(R.id.resistorView);
         currentResistance = (TextView) view.findViewById(R.id.currentResistance);
         enableFlash = (CheckBox) view.findViewById(R.id.flash);
-        resistorCameraView = (ResistorCameraView) view.findViewById(R.id.ResistorCameraView);
+        resistorCameraView = (CameraView) view.findViewById(R.id.ResistorCameraView);
         resistorCameraView.setVisibility(SurfaceView.VISIBLE);
-        resistorCameraView.setZoomControl((SeekBar) view.findViewById(R.id.CameraZoomControls));
+//        resistorCameraView.setZoomControl((SeekBar) view.findViewById(R.id.CameraZoomControls));
         resistorCameraView.setCvCameraViewListener(this);
 
         resistorProcessor = new ResistorImageProcessor();
@@ -75,34 +73,12 @@ public class ResistorDecoderFragment extends Fragment implements ResistorCameraV
 
     }
 
-
-    @Override
-    public void onPause()
-    {
-        super.onPause();
-        if (resistorCameraView != null)
-            resistorCameraView.disableView();
-    }
-
-    public void onDestroy() {
-        super.onDestroy();
-        if (resistorCameraView != null)
-            resistorCameraView.disableView();
-    }
-
-    public void onCameraViewStarted(int width, int height) {
-    }
-
-    public void onCameraViewStopped() {
-    }
-
-    public Mat onCameraFrame(ResistorCameraView.CvCameraViewFrame inputFrame) {
-        return resistorProcessor.processFrame(inputFrame, this);
+    public void onCameraFrame(CameraView.CvCameraViewFrame inputFrame) {
+        resistorProcessor.processFrame(inputFrame, this);
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         loaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
     }

@@ -5,7 +5,6 @@ import android.util.SparseIntArray;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
@@ -43,7 +42,7 @@ public class ResistorImageProcessor {
 
     private SparseIntArray _locationValues = new SparseIntArray(4);
 
-    public Mat processFrame(ResistorCameraView.CvCameraViewFrame frame, ResistanceCalculatedCallback callback) {
+    public Mat processFrame(CameraView.CvCameraViewFrame frame, ResistanceCalculatedCallback callback) {
         Mat imageMat = frame.rgba();
         int cols = imageMat.cols();
         int rows = imageMat.rows();
@@ -71,8 +70,7 @@ public class ResistorImageProcessor {
             }
         }
 
-        Scalar color = new Scalar(255, 0, 0, 255);
-        Core.line(imageMat, new Point(cols / 2 - 50, rows / 2), new Point(cols / 2 + 50, rows / 2), color, 2);
+        //Core.line(imageMat, new Point(cols / 2 - 50, rows / 2), new Point(cols / 2 + 50, rows / 2), color, 2);
         return imageMat;
     }
 
