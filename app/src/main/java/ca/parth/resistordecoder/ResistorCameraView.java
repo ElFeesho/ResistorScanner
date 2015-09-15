@@ -11,12 +11,10 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import org.opencv.android.Utils;
@@ -92,32 +90,17 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
          * This method returns RGBA Mat with frame
          */
         Mat rgba();
-
-        /**
-         * This method returns single channel gray scale Mat with frame
-         */
-        Mat gray();
     }
-
-
 
 
     private class JavaCameraFrame implements CvCameraViewFrame {
         private Mat mYuvFrameData;
         private Mat mRgba;
-        private int mWidth;
-        private int mHeight;
 
         public JavaCameraFrame(Mat Yuv420sp, int width, int height) {
             super();
-            mWidth = width;
-            mHeight = height;
             mYuvFrameData = Yuv420sp;
             mRgba = new Mat();
-        }
-
-        public Mat gray() {
-            return mYuvFrameData.submat(0, mHeight, 0, mWidth);
         }
 
         public Mat rgba() {
@@ -138,7 +121,6 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
                     try {
                         ResistorCameraView.this.wait();
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -160,20 +142,18 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
     private static final int MAX_UNSPECIFIED = -1;
     private static final int STOPPED = 0;
     private static final int STARTED = 1;
+    private final Object mSyncObject = new Object();
     protected Camera camera;
-    protected JavaCameraFrame[] mCameraFrame;
+    protected JavaCameraFrame[] mCameraFrame = new JavaCameraFrame[2];
     protected int mFrameWidth;
     protected int mFrameHeight;
     protected int mMaxHeight;
     protected int mMaxWidth;
-    protected float mScale = 0;
-
     protected int mCameraIndex = CAMERA_ID_ANY;
     protected boolean mEnabled;
-
     private SeekBar _zoomControl;
     private byte[] mBuffer;
-    private Mat[] mFrameChain;
+    private Mat[] mFrameChain = new Mat[2];
     private int mChainIdx = 0;
     private Thread mThread;
     private boolean mStopThread;
@@ -182,8 +162,6 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
     private Bitmap mCacheBitmap;
     private CvCameraViewListener2 mListener;
     private boolean mSurfaceExist;
-    private final Object mSyncObject = new Object();
-
     private CameraOpenStrategy cameraOpenStrategy;
     private CameraConfigStrategy cameraConfigStrategy;
 
@@ -304,42 +282,34 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
         synchronized (this) {
             camera = cameraOpenStrategy.openCamera();
             cameraConfigStrategy.configure(camera, width, height);
-            Camera.Parameters params = camera.getParameters();
 
-            mFrameWidth = params.getPreviewSize().width;
-            mFrameHeight = params.getPreviewSize().height;
+            Camera.Parameters parameters = camera.getParameters();
+            camera.setDisplayOrientation(90);
+            camera.setParameters(parameters);
 
-            if ((getLayoutParams().width == ViewGroup.LayoutParams.MATCH_PARENT) && (getLayoutParams().height == ViewGroup.LayoutParams.MATCH_PARENT)) {
-                mScale = Math.min(((float) height) / mFrameHeight, ((float) width) / mFrameWidth);
-            }
-            else {
-                mScale = 0;
-            }
+            mFrameWidth = parameters.getPreviewSize().width;
+            mFrameHeight = parameters.getPreviewSize().height;
+
 
             int size = mFrameWidth * mFrameHeight;
-            size = size * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
+            size = size * ImageFormat.getBitsPerPixel(parameters.getPreviewFormat()) / 8;
             mBuffer = new byte[size];
 
             camera.addCallbackBuffer(mBuffer);
             camera.setPreviewCallbackWithBuffer(this);
 
-            mFrameChain = new Mat[2];
             mFrameChain[0] = new Mat(mFrameHeight + (mFrameHeight / 2), mFrameWidth, CvType.CV_8UC1);
             mFrameChain[1] = new Mat(mFrameHeight + (mFrameHeight / 2), mFrameWidth, CvType.CV_8UC1);
 
             AllocateCache();
 
-            mCameraFrame = new JavaCameraFrame[2];
             mCameraFrame[0] = new JavaCameraFrame(mFrameChain[0], mFrameWidth, mFrameHeight);
             mCameraFrame[1] = new JavaCameraFrame(mFrameChain[1], mFrameWidth, mFrameHeight);
 
+
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    mSurfaceTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
-                    camera.setPreviewTexture(mSurfaceTexture);
-                } else {
-                    camera.setPreviewDisplay(null);
-                }
+                mSurfaceTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
+                camera.setPreviewTexture(mSurfaceTexture);
                 /* Finally we are ready to start the preview */
                 Log.d(TAG, "startPreview");
                 camera.startPreview();
@@ -417,7 +387,6 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
     }
 
     public void onPreviewFrame(byte[] frame, Camera arg1) {
-        Log.d(TAG, "Preview Frame received. Frame size: " + frame.length);
         synchronized (this) {
             mFrameChain[1 - mChainIdx].put(0, 0, frame);
             this.notify();
@@ -529,7 +498,6 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
                 }
                 break;
         }
-        ;
     }
 
     private void processExitState(int state) {
@@ -541,7 +509,6 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
                 onExitStoppedState();
                 break;
         }
-        ;
     }
 
     private void onEnterStoppedState() {
@@ -609,22 +576,11 @@ public class ResistorCameraView extends SurfaceView implements Camera.PreviewCal
         if (bmpValid && mCacheBitmap != null) {
             Canvas canvas = getHolder().lockCanvas();
             if (canvas != null) {
-                canvas.drawColor(0, android.graphics.PorterDuff.Mode.CLEAR);
-                Log.d(TAG, "mStretch value: " + mScale);
-
-                if (mScale != 0) {
-                    canvas.drawBitmap(mCacheBitmap, new Rect(0, 0, mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
-                            new Rect((int) ((canvas.getWidth() - mScale * mCacheBitmap.getWidth()) / 2),
-                                    (int) ((canvas.getHeight() - mScale * mCacheBitmap.getHeight()) / 2),
-                                    (int) ((canvas.getWidth() - mScale * mCacheBitmap.getWidth()) / 2 + mScale * mCacheBitmap.getWidth()),
-                                    (int) ((canvas.getHeight() - mScale * mCacheBitmap.getHeight()) / 2 + mScale * mCacheBitmap.getHeight())), null);
-                } else {
-                    canvas.drawBitmap(mCacheBitmap, new Rect(0, 0, mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
-                            new Rect((canvas.getWidth() - mCacheBitmap.getWidth()) / 2,
-                                    (canvas.getHeight() - mCacheBitmap.getHeight()) / 2,
-                                    (canvas.getWidth() - mCacheBitmap.getWidth()) / 2 + mCacheBitmap.getWidth(),
-                                    (canvas.getHeight() - mCacheBitmap.getHeight()) / 2 + mCacheBitmap.getHeight()), null);
-                }
+                canvas.drawBitmap(mCacheBitmap, new Rect(0, 0, mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
+                        new Rect((canvas.getWidth() - mCacheBitmap.getWidth()) / 2,
+                                (canvas.getHeight() - mCacheBitmap.getHeight()) / 2,
+                                (canvas.getWidth() - mCacheBitmap.getWidth()) / 2 + mCacheBitmap.getWidth(),
+                                (canvas.getHeight() - mCacheBitmap.getHeight()) / 2 + mCacheBitmap.getHeight()), null);
 
                 getHolder().unlockCanvasAndPost(canvas);
             }
