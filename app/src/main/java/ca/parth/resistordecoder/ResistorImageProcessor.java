@@ -44,12 +44,7 @@ public class ResistorImageProcessor {
 
     private SparseIntArray locationValues = new SparseIntArray(4);
 
-    public Mat processFrame(CameraFrame frame, ResistanceCalculatedCallback callback) {
-        Mat imageMat = frame.rgba();
-        int cols = imageMat.cols();
-        int rows = imageMat.rows();
-
-        Mat subMat = imageMat.submat(rows / 2, rows / 2 + 30, cols / 2 - 50, cols / 2 + 50);
+    public void processFrame(Mat subMat, ResistanceCalculatedCallback callback) {
         Mat filteredMat = new Mat();
         Imgproc.cvtColor(subMat, subMat, Imgproc.COLOR_RGBA2BGR);
         Imgproc.bilateralFilter(subMat, filteredMat, 5, 80, 80);
@@ -69,8 +64,6 @@ public class ResistorImageProcessor {
                 callback.resistanceCalculated(value);
             }
         }
-
-        return imageMat;
     }
 
     // find contours of colour bands and the x-coords of their centroids

@@ -19,7 +19,7 @@ import ca.parth.resistordecoder.camera.CameraFrame;
 public class CameraView extends TextureView implements Camera.PreviewCallback {
 
     public interface CameraFrameAvailableListener {
-        void onCameraFrame(CameraFrame inputFrame);
+        void onCameraFrame(Mat capturedFrame);
     }
 
     private Camera camera;
@@ -137,7 +137,7 @@ public class CameraView extends TextureView implements Camera.PreviewCallback {
     public void onPreviewFrame(byte[] frame, Camera camera) {
         frameChain[1 - chainIndex].put(0, 0, frame);
         if (!frameChain[chainIndex].empty()) {
-            deliverFrame(mCameraFrame[chainIndex]);
+            deliverFrame(mCameraFrame[chainIndex].rgba());
         }
         chainIndex = 1 - chainIndex;
         if (camera != null) {
@@ -145,9 +145,12 @@ public class CameraView extends TextureView implements Camera.PreviewCallback {
         }
     }
 
-    protected void deliverFrame(CameraFrame frame) {
+    protected void deliverFrame(Mat frame) {
         if (cameraFrameAvailableListener != null) {
-            cameraFrameAvailableListener.onCameraFrame(frame);
+            int cols = frame.cols();
+            int rows = frame.rows();
+
+            cameraFrameAvailableListener.onCameraFrame(frame.submat(rows / 2, rows / 2 + 30, cols / 2 - 50, cols / 2 + 50));
         }
     }
 }

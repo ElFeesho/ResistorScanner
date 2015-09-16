@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -22,18 +23,20 @@ public class ResistorView extends View {
     public static final int RESISTANCE_GREY = 0xff979191;
     public static final int RESISTANCE_WHITE = 0xffefefef;
 
-    public static int[] COLOUR_TABLE = { RESISTANCE_BLACK, RESISTANCE_BROWN, RESISTANCE_RED, RESISTANCE_ORANGE, RESISTANCE_YELLOW, RESISTANCE_GREEN, RESISTANCE_BLUE, RESISTANCE_VIOLET, RESISTANCE_GREY, RESISTANCE_WHITE };
+    public static int[] COLOUR_TABLE = {RESISTANCE_BLACK, RESISTANCE_BROWN, RESISTANCE_RED, RESISTANCE_ORANGE, RESISTANCE_YELLOW, RESISTANCE_GREEN, RESISTANCE_BLUE, RESISTANCE_VIOLET, RESISTANCE_GREY, RESISTANCE_WHITE};
 
     private Path resistorBody = new Path();
     private Paint bodyPaint = new Paint();
     private Paint strokePaint = new Paint();
     private Paint bandPaint = new Paint();
-    private int resistance = 1;
+    private Paint textPaint = new Paint();
+    private int resistance = 407;
     private int bandWidth;
     private int toleranceOffset;
 
     private int[] bandOffsets = new int[3];
     private int[] bandColours = new int[3];
+    private String resistanceLabel = "0 Ω";
 
     public ResistorView(Context context) {
         this(context, null, 0);
@@ -53,6 +56,10 @@ public class ResistorView extends View {
         strokePaint.setColor(0xff000000);
         strokePaint.setStyle(Paint.Style.STROKE);
         bandPaint.setStyle(Paint.Style.FILL);
+
+        textPaint.setTextSize(50);
+        textPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        textPaint.setColor(0xffdfdfdf);
 
         setResistance(resistance);
     }
@@ -92,31 +99,34 @@ public class ResistorView extends View {
         bandOffsets[1] = bandOffsets[0] + bandStride;
         bandOffsets[2] = bandOffsets[1] + bandStride;
 
-
         toleranceOffset = w / 4 * 3;
     }
 
-    public void setResistance(int resistance)
-    {
-
-        if (resistance <= 0 || resistance > 99_000_000)
-        {
+    public void setResistance(int resistance) {
+        if (resistance <= 0 || resistance > 99_000_000) {
             this.resistance = 0;
             bandColours[0] = RESISTANCE_BLACK;
             bandColours[1] = RESISTANCE_BLACK;
             bandColours[2] = RESISTANCE_BLACK;
-        }
-        else {
-            int powersOfTen = (int) Math.floor(Math.log10(resistance))-1;
-            if (powersOfTen < 0)
-            {
+        } else {
+            int powersOfTen = (int) Math.floor(Math.log10(resistance)) - 1;
+            if (powersOfTen < 0) {
                 powersOfTen = 0;
             }
             this.resistance = resistance;
             String resistanceValue = resistance + "";
-            bandColours[0] = COLOUR_TABLE[resistanceValue.charAt(0)-'0'];
-            bandColours[1] = COLOUR_TABLE[resistanceValue.charAt(0)-'0'];
+            bandColours[0] = COLOUR_TABLE[resistanceValue.charAt(0) - '0'];
+            bandColours[1] = COLOUR_TABLE[resistanceValue.charAt(0) - '0'];
             bandColours[2] = COLOUR_TABLE[powersOfTen];
+        }
+
+
+        if (resistance >= 1e3 && resistance < 1e6) {
+            resistanceLabel = String.valueOf(resistance / 1e3) + " kΩ";
+        } else if (resistance >= 1e6) {
+            resistanceLabel = String.valueOf(resistance / 1e6) + " MΩ";
+        } else {
+            resistanceLabel = String.valueOf(resistance) + " Ω";
         }
 
         invalidate();
@@ -134,6 +144,15 @@ public class ResistorView extends View {
             drawBand(canvas, bandOffsets[i], bandColours[i]);
         }
         drawBand(canvas, toleranceOffset, TOLERANCE_GOLD);
+
+        textPaint.setColor(0x99888888);
+        float shadowOffset = getResources().getDisplayMetrics().scaledDensity * 2;
+        int xPos = (int) ((getMeasuredWidth() - textPaint.measureText(resistanceLabel)) / 2);
+        int yPos = (int) ((getMeasuredHeight()) / 2 + textPaint.getFontMetrics().bottom);
+
+        canvas.drawText(resistanceLabel, xPos + shadowOffset, yPos + shadowOffset, textPaint);
+        textPaint.setColor(0xffdfdfdf);
+        canvas.drawText(resistanceLabel, xPos, yPos, textPaint);
     }
 
     private void drawBand(Canvas canvas, int offset, int bandColour) {
