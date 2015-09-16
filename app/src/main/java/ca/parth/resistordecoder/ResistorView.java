@@ -60,7 +60,7 @@ public class ResistorView extends View {
 
         textPaint.setTextSize(50);
         textPaint.setTypeface(Typeface.DEFAULT_BOLD);
-        textPaint.setColor(0xffdfdfdf);
+        textPaint.setColor(0xffffffff);
 
         wirePaint.setStyle(Paint.Style.FILL);
         wirePaint.setColor(0xffdddddd);
@@ -103,6 +103,8 @@ public class ResistorView extends View {
         bandOffsets[2] = bandOffsets[1] + bandStride;
 
         toleranceOffset = w / 4 * 3;
+
+        textPaint.setTextSize(h/3);
     }
 
     public void setResistance(int resistance) {
@@ -152,13 +154,13 @@ public class ResistorView extends View {
         }
         drawBand(canvas, toleranceOffset, TOLERANCE_GOLD);
 
-        textPaint.setColor(0x99888888);
-        float shadowOffset = scaledDensity * 2;
+        float shadowOffset = scaledDensity * 3;
         int xPos = (int) ((getMeasuredWidth() - textPaint.measureText(resistanceLabel)) / 2);
         int yPos = (int) ((getMeasuredHeight()) / 2 + textPaint.getFontMetrics().bottom);
 
+        textPaint.setColor(0x99888888);
         canvas.drawText(resistanceLabel, xPos + shadowOffset, yPos + shadowOffset, textPaint);
-        textPaint.setColor(0xffdfdfdf);
+        textPaint.setColor(0xffefefef);
         canvas.drawText(resistanceLabel, xPos, yPos, textPaint);
     }
 
